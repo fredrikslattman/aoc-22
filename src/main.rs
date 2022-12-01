@@ -1,20 +1,24 @@
+macro_rules! include_day1_input {
+    ($path:expr) => {
+        include_str!($path)
+            .split("\n\n")
+            .map(|chunk| {
+                chunk
+                    .trim()
+                    .split("\n")
+                    .collect::<Vec<&str>>()
+                    .iter()
+                    .map(|n| n.parse::<u32>().unwrap())
+                    .collect::<Vec<u32>>()
+            })
+            .collect()
+    };
+}
+
 fn main() {
-    let input: Vec<Vec<u32>> = include_str!("../input/1a.txt")
-        .split("\n\n")
-        .map(|chunk| {
-            chunk
-                .trim()
-                .split("\n")
-                .collect::<Vec<&str>>()
-                .iter()
-                .map(|n| n.parse::<u32>().unwrap())
-                .collect::<Vec<u32>>()
-        })
-        .collect();
-
+    let input: Vec<Vec<u32>> = include_day1_input!("../input/1a.txt");
     println!("Day 1a: {}", day1_a(&input));
-
-    println!("Day 2b: {}", day1_b(input));
+    println!("Day 1b: {}", day1_b(input));
 }
 
 pub fn day1_a(input: &Vec<Vec<u32>>) -> u32 {
@@ -41,37 +45,13 @@ mod test {
 
     #[test]
     fn test_day_1a() {
-        let input: Vec<Vec<u32>> = include_str!("../input/1a_test.txt")
-            .split("\n\n")
-            .map(|chunk| {
-                chunk
-                    .trim()
-                    .split("\n")
-                    .collect::<Vec<&str>>()
-                    .iter()
-                    .map(|n| n.parse::<u32>().unwrap())
-                    .collect::<Vec<u32>>()
-            })
-            .collect();
-
+        let input: Vec<Vec<u32>> = include_day1_input!("../input/1a_test.txt");
         assert_eq!(day1_a(&input), 24000);
     }
 
     #[test]
     fn test_day_1b() {
-        let input: Vec<Vec<u32>> = include_str!("../input/1a_test.txt")
-            .split("\n\n")
-            .map(|chunk| {
-                chunk
-                    .trim()
-                    .split("\n")
-                    .collect::<Vec<&str>>()
-                    .iter()
-                    .map(|n| n.parse::<u32>().unwrap())
-                    .collect::<Vec<u32>>()
-            })
-            .collect();
-
+        let input: Vec<Vec<u32>> = include_day1_input!("../input/1a_test.txt");
         assert_eq!(day1_b(input), 45000);
     }
 }
