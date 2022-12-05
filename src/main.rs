@@ -1,3 +1,20 @@
+macro_rules! include_day4_input {
+    ($path:expr) => {
+        include_str!($path)
+            .lines()
+            .map(|line| {
+                let (first, second) = line.split_once(',').unwrap();
+                let (a, b) = first.split_once('-').unwrap();
+                let (c, d) = second.split_once('-').unwrap();
+                (
+                    (a.parse().unwrap(), b.parse().unwrap()),
+                    (c.parse().unwrap(), d.parse().unwrap()),
+                )
+            })
+            .collect()
+    };
+}
+
 macro_rules! include_day3_input {
     ($path:expr) => {
         include_str!($path)
@@ -45,6 +62,10 @@ fn main() {
     let input: Vec<Vec<char>> = include_day3_input!("../input/3a.txt");
     println!("Day 3a: {}", day3_a(&input));
     println!("Day 3b: {}", day3_b(input));
+
+    let input: Vec<((u32, u32), (u32, u32))> = include_day4_input!("../input/4a.txt");
+    println!("Day 4a: {}", day4_a(&input));
+    println!("Day 4b: {}", day4_b(input));
 }
 
 pub fn day1_a(input: &Vec<Vec<u32>>) -> u32 {
@@ -131,6 +152,28 @@ pub fn day3_b(input: Vec<Vec<char>>) -> u32 {
         .sum()
 }
 
+pub fn day4_a(input: &Vec<((u32, u32), (u32, u32))>) -> u32 {
+    input.iter().fold(0, |acc, ((a, b), (c, d))| {
+        if a <= c && b >= d || c <= a && d >= b {
+            acc + 1
+        } else {
+            acc
+        }
+    })
+}
+
+pub fn day4_b(input: Vec<((u32, u32), (u32, u32))>) -> u32 {
+    input.iter().fold(0, |acc, ((a, b), (c, d))| {
+        if a <= c && b >= d || c <= a && d >= b {
+            acc + 1
+        } else if a <= c && b >= c || c <= a && d >= a {
+            acc + 1
+        } else {
+            acc
+        }
+    })
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -169,5 +212,17 @@ mod test {
     fn test_day_3b() {
         let input: Vec<Vec<char>> = include_day3_input!("../input/3a_test.txt");
         assert_eq!(day3_b(input), 70);
+    }
+
+    #[test]
+    fn test_day_4a() {
+        let input: Vec<((u32, u32), (u32, u32))> = include_day4_input!("../input/4a_test.txt");
+        assert_eq!(day4_a(&input), 2);
+    }
+
+    #[test]
+    fn test_day_4b() {
+        let input: Vec<((u32, u32), (u32, u32))> = include_day4_input!("../input/4a_test.txt");
+        assert_eq!(day4_b(input), 4);
     }
 }
