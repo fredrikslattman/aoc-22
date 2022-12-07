@@ -2,6 +2,7 @@ use aoc22::include_day1_input;
 use aoc22::include_day2_input;
 use aoc22::include_day3_input;
 use aoc22::include_day4_input;
+use aoc22::include_day5_input;
 
 fn main() {
     let input: Vec<Vec<u32>> = include_day1_input!("../input/1a.txt");
@@ -19,6 +20,10 @@ fn main() {
     let input: Vec<((u32, u32), (u32, u32))> = include_day4_input!("../input/4a.txt");
     println!("Day 4a: {}", day4_a(&input));
     println!("Day 4b: {}", day4_b(input));
+
+    let input: (&str, &str) = include_day5_input!("../input/5a.txt");
+    println!("Day 5a: {}", day5_a(input, false));
+    println!("Day 5b: {}", day5_a(input, true));
 }
 
 pub fn day1_a(input: &Vec<Vec<u32>>) -> u32 {
@@ -127,6 +132,52 @@ pub fn day4_b(input: Vec<((u32, u32), (u32, u32))>) -> u32 {
     })
 }
 
+pub fn day5_a((stack, moves): (&str, &str), cratemover_9001: bool) -> String {
+    let mut stack_it = stack.lines().rev();
+    let mut stack: Vec<Vec<char>> = vec![
+        vec![];
+        stack_it
+            .next()
+            .unwrap()
+            .trim()
+            .chars()
+            .last()
+            .unwrap()
+            .to_digit(10)
+            .unwrap() as usize
+    ];
+
+    for line in stack_it {
+        for (i, c) in line.chars().skip(1).step_by(4).enumerate() {
+            if c != ' ' {
+                stack[i].push(c);
+            }
+        }
+    }
+
+    moves.lines().for_each(|line| {
+        let line: Vec<&str> = line.split(" ").collect();
+        let (move_count, move_from, move_to) = (
+            line[1].parse::<usize>().unwrap(),
+            line[3].parse::<usize>().unwrap() - 1,
+            line[5].parse::<usize>().unwrap() - 1,
+        );
+        let from = &mut stack[move_from];
+        let moved = from.split_off(from.len() - move_count);
+        if cratemover_9001 {
+            moved.iter().for_each(|c| stack[move_to].push(*c));
+        } else {
+            moved.iter().rev().for_each(|c| stack[move_to].push(*c));
+        }
+    });
+
+    let mut top_items = String::new();
+    stack.iter().for_each(|x| {
+        top_items.push(*x.last().unwrap());
+    });
+    top_items
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -177,5 +228,17 @@ mod test {
     fn test_day_4b() {
         let input: Vec<((u32, u32), (u32, u32))> = include_day4_input!("../input/4a_test.txt");
         assert_eq!(day4_b(input), 4);
+    }
+
+    #[test]
+    fn test_day_5a() {
+        let input: (&str, &str) = include_day5_input!("../input/5a_test.txt");
+        assert_eq!(day5_a(input, false), "CMZ");
+    }
+
+    #[test]
+    fn test_day_5b() {
+        let input: (&str, &str) = include_day5_input!("../input/5a_test.txt");
+        assert_eq!(day5_a(input, true), "MCD");
     }
 }

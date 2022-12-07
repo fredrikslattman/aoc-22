@@ -53,3 +53,10 @@ macro_rules! include_day4_input {
             .collect()
     };
 }
+
+#[macro_export]
+macro_rules! include_day5_input {
+    ($path:expr) => {
+        include_str!($path).split_once("\n\n").unwrap();
+    };
+}
