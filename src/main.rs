@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use aoc22::include_day1_input;
 use aoc22::include_day2_input;
 use aoc22::include_day3_input;
@@ -24,6 +26,10 @@ fn main() {
     let input: (&str, &str) = include_day5_input!("../input/5a.txt");
     println!("Day 5a: {}", day5_a(input, false));
     println!("Day 5b: {}", day5_a(input, true));
+
+    let input: Vec<char> = include_str!("../input/6a.txt").chars().collect();
+    println!("Day 6a: {}", day6_ab(&input, 4));
+    println!("Day 6b: {}", day6_ab(&input, 14));
 }
 
 pub fn day1_a(input: &Vec<Vec<u32>>) -> u32 {
@@ -178,6 +184,16 @@ pub fn day5_a((stack, moves): (&str, &str), cratemover_9001: bool) -> String {
     top_items
 }
 
+pub fn day6_ab(input: &Vec<char>, seq_len: usize) -> u32 {
+    for (i, c) in input.windows(seq_len).enumerate() {
+        let unique: HashSet<char> = HashSet::from_iter(c.iter().cloned());
+        if unique.len() == seq_len {
+            return (i + seq_len) as u32;
+        }
+    }
+    unreachable!("Bad input");
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -240,5 +256,67 @@ mod test {
     fn test_day_5b() {
         let input: (&str, &str) = include_day5_input!("../input/5a_test.txt");
         assert_eq!(day5_a(input, true), "MCD");
+    }
+
+    #[test]
+    fn test_day_6a() {
+        assert_eq!(
+            day6_ab(
+                &"mjqjpqmgbljsphdztnvjfqwrcgsmlb"
+                    .chars()
+                    .collect::<Vec<char>>(),
+                4
+            ),
+            7
+        );
+        assert_eq!(
+            day6_ab(
+                &"bvwbjplbgvbhsrlpgdmjqwftvncz"
+                    .chars()
+                    .collect::<Vec<char>>(),
+                4
+            ),
+            5
+        );
+        assert_eq!(
+            day6_ab(
+                &"nppdvjthqldpwncqszvftbrmjlhg"
+                    .chars()
+                    .collect::<Vec<char>>(),
+                4
+            ),
+            6
+        );
+    }
+
+    #[test]
+    fn test_day_6b() {
+        assert_eq!(
+            day6_ab(
+                &"mjqjpqmgbljsphdztnvjfqwrcgsmlb"
+                    .chars()
+                    .collect::<Vec<char>>(),
+                14
+            ),
+            19
+        );
+        assert_eq!(
+            day6_ab(
+                &"bvwbjplbgvbhsrlpgdmjqwftvncz"
+                    .chars()
+                    .collect::<Vec<char>>(),
+                14
+            ),
+            23
+        );
+        assert_eq!(
+            day6_ab(
+                &"nppdvjthqldpwncqszvftbrmjlhg"
+                    .chars()
+                    .collect::<Vec<char>>(),
+                14
+            ),
+            23
+        );
     }
 }
