@@ -1,10 +1,14 @@
+use std::collections::HashMap;
 use std::collections::HashSet;
+use std::path::Path;
+use std::path::PathBuf;
 
 use aoc22::include_day1_input;
 use aoc22::include_day2_input;
 use aoc22::include_day3_input;
 use aoc22::include_day4_input;
 use aoc22::include_day5_input;
+use aoc22::include_day7_input;
 
 fn main() {
     let input: Vec<Vec<u32>> = include_day1_input!("../input/1a.txt");
@@ -30,6 +34,10 @@ fn main() {
     let input: Vec<char> = include_str!("../input/6a.txt").chars().collect();
     println!("Day 6a: {}", day6_ab(&input, 4));
     println!("Day 6b: {}", day6_ab(&input, 14));
+
+    let input: Vec<&str> = include_day7_input!("../input/7a.txt");
+    println!("Day 7a: {}", day7_ab(&input, false));
+    println!("Day 7b: {}", day7_ab(&input, true));
 }
 
 pub fn day1_a(input: &Vec<Vec<u32>>) -> u32 {
@@ -194,6 +202,50 @@ pub fn day6_ab(input: &Vec<char>, seq_len: usize) -> u32 {
     unreachable!("Bad input");
 }
 
+pub fn day7_ab(input: &Vec<&str>, free_up: bool) -> u32 {
+    let mut disk: HashMap<PathBuf, u32> = HashMap::new();
+    let mut cwd: PathBuf = Path::new("/").to_path_buf();
+    input
+        .iter()
+        .filter(|entry| !entry.starts_with("dir") && !entry.starts_with("$ ls"))
+        .for_each(|entry| match entry {
+            &"$ cd .." => {
+                cwd.pop();
+            }
+            _ if entry.starts_with("$ cd ") => {
+                cwd.push(&entry[5..]);
+            }
+            &_ => {
+                let (size, _) = entry.split_at(entry.find(' ').unwrap());
+                let directory_size = disk.entry(cwd.clone()).or_insert(0);
+                *directory_size += size.parse::<u32>().unwrap();
+
+                let mut cwd = cwd.clone();
+                while let Some(parent) = cwd.parent() {
+                    let parent_size = disk.entry(parent.to_path_buf()).or_insert(0);
+                    *parent_size += size.parse::<u32>().unwrap();
+                    cwd = parent.to_path_buf();
+                }
+            }
+        });
+
+    if free_up {
+        const TOTAL_DISKSPACE: u32 = 70000000;
+        const NEEDED_DISKSPACE: u32 = 30000000;
+        let needed = NEEDED_DISKSPACE - (TOTAL_DISKSPACE - disk[&Path::new("/").to_path_buf()]);
+        disk.values()
+            .filter(|&x| x >= &needed)
+            .min()
+            .unwrap()
+            .to_owned() as u32
+    } else {
+        disk.iter()
+            .filter(|(_, size)| **size <= 100000)
+            .map(|(_, size)| size)
+            .sum()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -318,5 +370,17 @@ mod test {
             ),
             23
         );
+    }
+
+    #[test]
+    fn test_day7_a() {
+        let input: Vec<&str> = include_day7_input!("../input/7a_test.txt");
+        assert_eq!(day7_ab(&input, false), 95437);
+    }
+
+    #[test]
+    fn test_day7_b() {
+        let input: Vec<&str> = include_day7_input!("../input/7a_test.txt");
+        assert_eq!(day7_ab(&input, true), 24933642);
     }
 }
